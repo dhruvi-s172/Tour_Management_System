@@ -3,6 +3,7 @@ import streamlit as st
 from auth import require_role
 from config import ROLES
 from services.booking_service import get_tour
+from ui.components import seat_meter
 from utils.helpers import money
 
 
@@ -21,13 +22,24 @@ def render():
         st.error("Selected tour package was not found.")
         return
 
-    st.markdown(f"<img class='detail-img' src='{tour.image_url}' onerror=\"this.style.display='none'\">", unsafe_allow_html=True)
-    st.title(tour.title)
+    st.markdown(
+        f"""
+        <section class='hero-premium' style="min-height:420px;background:linear-gradient(90deg, rgba(11,31,58,.88), rgba(18,53,107,.45)), url('{tour.image_url}'); background-size:cover; background-position:center;">
+          <div class='hero-content'>
+            <div class='hero-eyebrow'>{tour.category}</div>
+            <h1 class='hero-title' style='font-size:clamp(2.5rem,5vw,4.7rem)'>{tour.title}</h1>
+            <p class='hero-subtitle'>{tour.destination} | {tour.duration_days} days | {money(tour.price)} per person</p>
+          </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Destination", tour.destination)
     c2.metric("Duration", f"{tour.duration_days} days")
     c3.metric("Price", money(tour.price))
     c4.metric("Seats", f"{tour.available_seats}/{tour.total_seats}")
+    st.markdown(seat_meter(tour.available_seats, tour.total_seats), unsafe_allow_html=True)
 
     st.markdown("### Overview")
     st.write(tour.description)

@@ -9,7 +9,7 @@ from utils.helpers import tour_card
 def render():
     if not require_role(ROLES["CUSTOMER"]):
         return
-    st.title("Search Tour Packages")
+    st.markdown("<div class='tm-card'><h1 style='margin:0'>Search Tour Packages</h1><p class='muted'>Filter by destination, budget, duration, category and availability.</p></div>", unsafe_allow_html=True)
     default_destination = st.session_state.pop("dashboard_search", "")
 
     with st.form("tour_search_form"):
@@ -24,7 +24,7 @@ def render():
         submitted = st.form_submit_button("Apply Filters", type="primary", use_container_width=True)
 
     tours = search_tours(destination, category, min_budget, max_budget, max_duration, available_only)
-    st.caption(f"{len(tours)} package(s) found")
+    st.markdown(f"<span class='chip'>{len(tours)} package(s) found</span>", unsafe_allow_html=True)
     if not tours:
         st.warning("No packages match the selected filters.")
         return

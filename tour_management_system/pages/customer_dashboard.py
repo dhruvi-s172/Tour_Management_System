@@ -1,4 +1,5 @@
 from datetime import date
+from datetime import datetime
 
 import streamlit as st
 
@@ -16,8 +17,17 @@ def render():
     active_bookings = [b for b in bookings if b.status in ["Pending Payment", "Confirmed", "Modified"]]
     upcoming = sorted([b for b in active_bookings if b.travel_date >= date.today()], key=lambda b: b.travel_date)
 
-    st.title(f"Welcome, {user['name'].split()[0]}")
-    st.caption("Find curated tours, manage bookings, and track payment status from one clean dashboard.")
+    hour = datetime.now().hour
+    greeting = "Good morning" if hour < 12 else "Good afternoon" if hour < 17 else "Good evening"
+    st.markdown(
+        f"""
+        <div class='tm-card'>
+          <h1 style='margin:0'>{greeting}, {user['name'].split()[0]}</h1>
+          <p class='muted'>Find curated tours, manage bookings, and track payment status from one premium travel dashboard.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     c1, c2, c3 = st.columns(3)
     with c1:
@@ -61,4 +71,9 @@ def render():
 
     st.markdown("### Popular Destinations")
     destinations = sorted({tour.destination for tour in get_active_tours()})[:8]
-    st.write(" | ".join(destinations))
+    st.markdown(
+        "<div class='marquee'><div class='marquee-track'>"
+        + "".join(f"<span class='dest-chip'>{destination}</span>" for destination in destinations * 2)
+        + "</div></div>",
+        unsafe_allow_html=True,
+    )

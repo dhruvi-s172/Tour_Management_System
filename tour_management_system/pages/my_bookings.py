@@ -5,29 +5,12 @@ import streamlit as st
 from auth import current_user, require_role
 from config import ROLES
 from services.booking_service import cancel_booking, get_booking, get_user_bookings, modify_booking
+from ui.components import empty_state, timeline
 from utils.helpers import money, receipt_text, status_badge
 
 
 def status_flow(status: str, payment_status: str):
-    if status == "Cancelled":
-        steps = [("Booked", True, ""), ("Cancelled", True, "cancelled")]
-    else:
-        steps = [
-            ("Booked", True, ""),
-            ("Payment Confirmed", payment_status == "Paid", ""),
-            ("Tour Confirmed", status in ["Confirmed", "Modified", "Completed"], ""),
-            ("Completed", status == "Completed", ""),
-        ]
-    html = "<div class='status-flow'>"
-    for label, active, extra in steps:
-        klass = "status-step"
-        if active:
-            klass += " active"
-        if extra:
-            klass += f" {extra}"
-        html += f"<span class='{klass}'>{label}</span>"
-    html += "</div>"
-    st.markdown(html, unsafe_allow_html=True)
+    st.markdown(timeline(status, payment_status), unsafe_allow_html=True)
 
 
 def render():
@@ -37,14 +20,14 @@ def render():
     bookings = get_user_bookings(user["id"])
     st.title("My Bookings")
     if not bookings:
-        st.info("You do not have any bookings yet.")
+        st.markdown(empty_state("No bookings yet", "Choose a package and your travel ticket will appear here."), unsafe_allow_html=True)
         return
 
     for booking in bookings:
         with st.container():
             st.markdown(
                 f"""
-                <div class='tm-card'>
+                <div class='ticket-card'>
                     <h3>#{booking.id} - {booking.tour.title}</h3>
                     <div class='muted'>{booking.tour.destination} | Travel date: {booking.travel_date.strftime('%d %b %Y')}</div>
                     <p>{booking.travelers} traveler(s) | {money(booking.total_amount)}</p>

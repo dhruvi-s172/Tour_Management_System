@@ -36,3 +36,7 @@ BOOKING_STATUSES = [
 PAYMENT_STATUSES = ["Unpaid", "Paid", "Failed", "Refunded"]
 
 RESOURCE_TYPES = ["Hotel Room", "Vehicle", "Seat", "Guide", "Meal Plan"]
+
+# UI presentation flag. Turn this off for viva demos on very slow machines or
+# for users who prefer a calmer interface.
+ENABLE_ANIMATIONS = True

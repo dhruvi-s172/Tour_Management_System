@@ -5,6 +5,7 @@ import streamlit as st
 from auth import current_user, require_role
 from config import ROLES
 from services.booking_service import create_booking, get_tour
+from ui.components import price_summary, seat_meter, stepper
 from utils.helpers import money
 
 
@@ -23,6 +24,7 @@ def render():
         st.error("Tour package was not found.")
         return
 
+    st.markdown(stepper("Booking"), unsafe_allow_html=True)
     st.title("Create Booking")
     st.markdown(
         f"""
@@ -30,7 +32,7 @@ def render():
             <h3>{tour.title}</h3>
             <div class='muted'>{tour.destination} | {tour.duration_days} days | {tour.category}</div>
             <div class='price'>{money(tour.price)} per person</div>
-            <div class='tiny muted'>{tour.available_seats} seats available</div>
+            {seat_meter(tour.available_seats, tour.total_seats)}
         </div>
         """,
         unsafe_allow_html=True,
@@ -40,7 +42,7 @@ def render():
         travel_date = st.date_input("Travel Date", min_value=date.today(), value=date.today() + timedelta(days=14))
         travelers = st.number_input("Number of Travelers", min_value=1, max_value=max(1, tour.available_seats), value=1)
         special_requests = st.text_area("Special Requests", placeholder="Meal preference, pickup notes, room preferences...")
-        st.metric("Total Price", money(tour.price * travelers))
+        st.markdown(price_summary(tour, travelers), unsafe_allow_html=True)
         submitted = st.form_submit_button("Confirm Booking", type="primary", use_container_width=True)
 
     if submitted:

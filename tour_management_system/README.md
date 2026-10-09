@@ -200,6 +200,41 @@ Start -> Admin Login -> Validate Credentials -> Admin Dashboard
 
 The payment gateway is intentionally simulated and works offline. It supports UPI, Credit Card, Debit Card, and Net Banking. The result can be forced to Success or Failed during demonstration, or set to Auto for randomized behavior.
 
+## UI & Animation System
+
+The presentation layer uses a centralized design system in `ui/`:
+
+- `ui/theme.py` contains design tokens, global CSS, responsive rules, widget styling, and motion keyframes.
+- `ui/components.py` contains reusable HTML components for hero, tour cards, KPI cards, status badges, steppers, timelines, empty states, seat meters, and price summaries.
+- `ui/animations.py` contains Streamlit component snippets for effects such as payment success confetti.
+- `ui/charts.py` applies a shared Plotly theme across admin dashboards and reports.
+- `ui/icons.py` provides inline SVG icons, so no icon CDN is required.
+
+Animations can be toggled from `config.py`:
+
+```python
+ENABLE_ANIMATIONS = True
+```
+
+Set it to `False` for a calmer UI or slower machines. The CSS also respects `prefers-reduced-motion`.
+
+Screenshot evidence can be stored in:
+
+```text
+assets/images/
+```
+
+## UI Upgrade Changelog
+
+- Landing page: premium animated hero, floating travel motif, destination marquee, richer package grid, and how-it-works cards.
+- Sidebar: branded dark navigation, user avatar chip, role badge, and active radio navigation styling.
+- Tour cards: image zoom hover, category badge, price badge, seat meter, chips, card lift, and few-seats pulse.
+- Customer dashboard: time-based greeting, animated destination strip, upgraded KPI cards and featured tour cards.
+- Tour details: cinematic image hero, seat meter, stronger visual hierarchy, and premium booking CTA styling.
+- Booking and payment: stepper, price summary card, demo gateway ribbon, confirmation ticket card, success check and confetti.
+- My Bookings: travel-ticket style booking cards and animated status timeline.
+- Admin dashboard/reports: shared Plotly theme, chart cards, donut charts, polished KPI cards, and styled dataframes.
+
 ## Future Enhancements
 
 - Real PDF receipt generation

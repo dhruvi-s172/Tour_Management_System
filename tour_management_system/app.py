@@ -1,3 +1,5 @@
+from html import escape
+
 import streamlit as st
 
 from auth import login_user, logout_user, register_customer, set_current_user
@@ -18,6 +20,8 @@ from pages import (
     tour_details,
 )
 from services.booking_service import get_active_tours
+from ui import components
+from ui.charts import apply_plotly_theme
 from utils.helpers import inject_css, tour_card
 from utils.seed_data import seed_database
 
@@ -31,6 +35,7 @@ st.set_page_config(
 init_db()
 seed_database()
 inject_css()
+apply_plotly_theme()
 
 
 def set_page(page: str):
@@ -45,11 +50,27 @@ def init_session():
 
 def sidebar_navigation():
     with st.sidebar:
-        st.markdown("<div class='nav-title'>Tour Management System</div>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div class='nav-brand'>
+              <div class='brand-mark'>TM</div>
+              <div><div class='brand-title'>Tour Manager</div><div class='brand-sub'>Premium travel ops</div></div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
         user = st.session_state.get("user")
         if user:
-            st.caption(f"Signed in as {user['name']}")
-            st.caption(user["role"].title())
+            initials = "".join(part[:1] for part in user["name"].split()[:2]).upper()
+            st.markdown(
+                f"""
+                <div class='user-chip'>
+                  <div class='avatar'>{escape(initials)}</div>
+                  <div><strong>{escape(user['name'])}</strong><br><span class='role-badge'>{escape(user['role'])}</span></div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
         if not st.session_state.get("authenticated"):
             options = ["Home", "Login", "Register", "Admin Login"]
@@ -86,17 +107,9 @@ def sidebar_navigation():
 
 
 def home_page():
-    st.markdown(
-        """
-        <section class='hero'>
-            <h1>Explore. Book. Travel.</h1>
-            <p>Plan your perfect journey with smart and seamless tour management.</p>
-        </section>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown(components.hero(), unsafe_allow_html=True)
 
-    st.markdown("<h2 class='section-title'>Popular Tour Packages</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 id='popular-packages' class='section-title'>Popular Tour Packages</h2>", unsafe_allow_html=True)
     tours = get_active_tours()[:9]
     for row_start in range(0, len(tours), 3):
         cols = st.columns(3)
@@ -110,6 +123,12 @@ def home_page():
     c2.markdown("<div class='tm-card'><h3>Adventure Trails</h3><p class='muted'>High-energy tours with vehicle, guide, and seat resource allocation.</p></div>", unsafe_allow_html=True)
     c3.markdown("<div class='tm-card'><h3>Luxury Retreats</h3><p class='muted'>Premium packages with higher revenue impact for admin analytics.</p></div>", unsafe_allow_html=True)
     c4.markdown("<div class='tm-card'><h3>International Plans</h3><p class='muted'>Presentation-ready packages with richer pricing and report filters.</p></div>", unsafe_allow_html=True)
+
+    st.markdown("<h2 id='how-it-works' class='section-title'>How It Works</h2>", unsafe_allow_html=True)
+    h1, h2, h3 = st.columns(3)
+    h1.markdown("<div class='tm-card'><h3>1. Discover</h3><p class='muted'>Search 36+ packages by destination, category, duration, price and seats.</p></div>", unsafe_allow_html=True)
+    h2.markdown("<div class='tm-card'><h3>2. Book & Pay</h3><p class='muted'>Reserve seats, calculate totals, and use the offline demo gateway.</p></div>", unsafe_allow_html=True)
+    h3.markdown("<div class='tm-card'><h3>3. Manage</h3><p class='muted'>Track status, modify bookings, allocate resources, and generate reports.</p></div>", unsafe_allow_html=True)
 
     st.markdown("<h2 class='section-title'>Get Started</h2>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)

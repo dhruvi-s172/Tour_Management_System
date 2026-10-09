@@ -4,11 +4,15 @@ from auth import require_role
 from config import ROLES
 from services.booking_service import get_booking
 from services.payment_service import PAYMENT_METHODS, latest_payment_for_booking, process_payment, validate_payment
+from ui.animations import confetti_once
+from ui.components import stepper
 from utils.helpers import money, receipt_text, status_badge
 
 
 def render_confirmation(booking):
     payment = latest_payment_for_booking(booking.id)
+    confetti_once("payment_success")
+    st.markdown("<svg class='success-mark' width='64' height='64' viewBox='0 0 24 24' fill='none'><path d='M20 6 9 17l-5-5' stroke='#16A34A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/></svg>", unsafe_allow_html=True)
     st.success("Booking confirmed successfully.")
     st.markdown("### Booking Confirmation")
     c1, c2, c3 = st.columns(3)
@@ -17,7 +21,7 @@ def render_confirmation(booking):
     c3.metric("Total Amount", money(booking.total_amount))
     st.markdown(
         f"""
-        <div class='tm-card'>
+        <div class='ticket-card'>
             <h3>{booking.tour.title}</h3>
             <p><strong>Customer:</strong> {booking.user.name}</p>
             <p><strong>Destination:</strong> {booking.tour.destination}</p>
@@ -50,6 +54,7 @@ def render():
         st.error("Booking was not found.")
         return
 
+    st.markdown(stepper("Payment"), unsafe_allow_html=True)
     st.title("Demo Payment Gateway")
     st.info("This is a simulated offline payment gateway for academic demonstration. No real money is processed.")
     if booking.payment_status == "Paid":
@@ -58,10 +63,11 @@ def render():
 
     st.markdown(
         f"""
-        <div class='tm-card'>
+        <div class='ticket-card'>
             <h3>Pay for Booking #{booking.id}</h3>
             <div>{booking.tour.title} - {booking.tour.destination}</div>
             <div class='price'>{money(booking.total_amount)}</div>
+            <div class='role-badge' style='margin-top:.7rem'>Demo payment gateway - no real money</div>
         </div>
         """,
         unsafe_allow_html=True,

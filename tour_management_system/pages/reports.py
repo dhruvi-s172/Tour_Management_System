@@ -8,6 +8,7 @@ from config import BOOKING_STATUSES, ROLES
 from database import get_session
 from models import TourPackage
 from services.report_service import bookings_dataframe, report_summary
+from ui.charts import polish
 from utils.helpers import dataframe_download, metric_card, money
 
 
@@ -48,8 +49,12 @@ def render():
         return
     c5, c6 = st.columns(2)
     with c5:
-        st.plotly_chart(px.bar(df.groupby("Destination").size().reset_index(name="Bookings"), x="Destination", y="Bookings", title="Bookings by Destination"), use_container_width=True)
+        st.markdown("<div class='chart-card'>", unsafe_allow_html=True)
+        st.plotly_chart(polish(px.bar(df.groupby("Destination").size().reset_index(name="Bookings"), x="Destination", y="Bookings"), "Bookings by Destination"), use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
     with c6:
-        st.plotly_chart(px.pie(df.groupby("Booking Status").size().reset_index(name="Count"), names="Booking Status", values="Count", title="Status Mix"), use_container_width=True)
+        st.markdown("<div class='chart-card'>", unsafe_allow_html=True)
+        st.plotly_chart(polish(px.pie(df.groupby("Booking Status").size().reset_index(name="Count"), names="Booking Status", values="Count", hole=.45), "Status Mix"), use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
     st.dataframe(df, use_container_width=True, hide_index=True)
     dataframe_download(df, "Download Booking Report", "booking_report.csv")
